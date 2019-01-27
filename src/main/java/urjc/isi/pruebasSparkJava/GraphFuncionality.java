@@ -28,7 +28,7 @@ public class GraphFuncionality {
      * @return String con la distancia y la ruta, u otro string en caso de error o 'no ruta'.
      */
     public static String doDistance(Graph graph, String name1, String name2) {
-    	if (graph.V() == 0) throw new NullPointerException("Main.doDistance");
+    	if (graph.E() == 0) throw new NullPointerException("GraphFuncionality.doDistance");
     	
     	String result = new String("");
     	ArrayList<String> allNames = new ArrayList<String>();
@@ -36,7 +36,7 @@ public class GraphFuncionality {
     					"o no existe en nuestra BD</p><br>";
     	try {
 	    	if (name1.equals("") || name2.equals("")){ //caso de no introducir nada
-	    		throw new IllegalArgumentException("Main.doDistance");
+	    		throw new IllegalArgumentException("GraphFuncionality.doDistance");
 	    	}else if (!graph.hasVertex(name1) && !graph.hasVertex(name2)){ //caso 2 erroneos
 	    		allNames = nameChecker(Main.getConnection(),name1);
 	    		result = "<p>Campo 1: </p>";
@@ -115,13 +115,15 @@ public class GraphFuncionality {
      * en vez de 'Tom Cruise'). Devuelve ArrayList vacío en caso de no coincidencia.
      */
     public static ArrayList<String> nameChecker(Connection conn, String name){
+    	if (name.equals("")) throw new IllegalArgumentException("GraphFuncionality.nameChecker"); //por si acaso (ver Tests)
+    	
     	String sql = "SELECT title FROM movies " + //consulta para nombre_pelis
     			"WHERE title LIKE ?";
     	String sql2 = "SELECT primaryName FROM workers " + //consulta para nombre_actores
     			"WHERE primaryName LIKE ?";
     	
     	ArrayList<String> result = new ArrayList<String>();
-    	try {
+    	try {	
 	    	PreparedStatement pstmt = conn.prepareStatement(sql);
 	    	pstmt.setString(1, "%" + name + "%");
 	    	PreparedStatement pstmt2 = conn.prepareStatement(sql2);
@@ -130,7 +132,7 @@ public class GraphFuncionality {
 	    	ResultSet rs = pstmt.executeQuery();
 	    	if(rs.next()) { //pelis
 	    		do{
-	    			result.add(rs.getString(1));
+	    			result.add(rs.getString(1)); //columna 1
 	    		}while(rs.next());
 	    	}
 	    			
@@ -154,7 +156,7 @@ public class GraphFuncionality {
      * @return String con sus vecinos, u otro string en caso de error o 'no vecinos'.
      */
     public static String doGraphFilter(Graph graph, String name) {
-    	if (graph.V() == 0) throw new NullPointerException("GraphFuncionality.doDistance");
+    	if (graph.E() == 0) throw new NullPointerException("GraphFuncionality.doGraphFilter");
     	
     	String result = new String("");
     	ArrayList<String> allNames = new ArrayList<String>();
@@ -162,7 +164,7 @@ public class GraphFuncionality {
     					"o no existe en nuestra BD</p><br>";
     	try {
 	    	if (name.equals("")){ //caso de no introducir nada
-	    		throw new IllegalArgumentException("GraphFuncionality.doDistance");
+	    		throw new IllegalArgumentException("GraphFuncionality.doGraphFilter");
 	    	}else if (!graph.hasVertex(name)){ //no coincidencia nombre
 	    		allNames = nameChecker(Main.getConnection(),name);
 	    		if (!allNames.isEmpty()) {
@@ -198,32 +200,20 @@ public class GraphFuncionality {
     }
     
     /**
-     * Ranking de los actores/actrices con más aparaciones en películas.
+     * Ranking de los actores/actrices con más aparaciones en x o más películas.
      * @param graph sobre el que calcular la distancia
      * @param number actores con x películas o más
-     * @return Set con las películas más cercanas (distancia 2 de name).
+     * @return Iterable con nombre de actor y número de películas realizadas.
      */
     public static Iterable<String> doRanking(Graph graph, String number) {
     	ST<String, Integer> result = new ST<String, Integer>();
-    	String text = "";
     	
-    	try {
-    		if (number.equals("")) {
-    			throw new IllegalArgumentException("GraphFuncionality.doRanking");
-    		}else {
-    			int numberAux = Integer.parseInt(number);
-//    			System.out.println(numberAux);
-    			for (String v : graph.vertices()) {
-                    if (graph.type(v) == 0) { //actores
-                    	if(graph.degree(v) > numberAux) result.put(v, graph.degree(v));
-                    }
-                }
-                text = "<p>RANKING:</p>";
-    		}
-            
-    	}catch(IllegalArgumentException e) {
-    		text ="<p>ERROR. Debe introducir un número en el form. Por favor, inténtalo de nuevo.</p>";
-    	}
+    	int numberAux = Integer.parseInt(number);
+    	for (String v : graph.vertices()) {
+    		if (graph.type(v) == 0) { //actores
+    			if(graph.degree(v) >= numberAux) result.put(v, graph.degree(v));
+            }
+        }
     	return result.keys();
     }
 }

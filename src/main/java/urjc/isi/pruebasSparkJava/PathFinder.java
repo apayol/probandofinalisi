@@ -39,7 +39,8 @@ public class PathFinder {
 
     // run BFS in graph G from given source vertex s
     public PathFinder(Graph G, String s) {
-
+    	if (s.equals("")) throw new IllegalArgumentException("PathFinder.PathFinder");
+    	
         // put source on the queue
         Queue<String> queue = new Queue<String>();
         queue.enqueue(s);
@@ -49,11 +50,11 @@ public class PathFinder {
         // all its neighbors, provided they haven't yet been visited
         while (!queue.isEmpty()) {
             String v = queue.dequeue();
-            for (String w : G.adjacentTo(v)) { //Va iterando sobre vertices del grafo, para key=v
-                if (!dist.contains(w)) { //si name 1 =! name 2 --> busco en otra peli
-                    queue.enqueue(w); //metemos w=vecino=peli (2a iter),buscar vecinos de peli
-                    dist.put(w, 1 + dist.get(v)); //para distancia numerica
-                    prev.put(w, v); //para la ruta
+            for (String w : G.adjacentTo(v)) { //Va iterando sobre vertices vecinos del grafo, para key=v
+                if (!dist.contains(w)) { //si dist no contiene al vecino --> añado, distancia y ruta
+                    queue.enqueue(w); //metemos w=vecino=peli/actor, para buscar vecinos de w en siguiente itr
+                    dist.put(w, 1 + dist.get(v)); //para distancia relativa de S
+                    prev.put(w, v); //para trazar la ruta
                 }
             }
         }

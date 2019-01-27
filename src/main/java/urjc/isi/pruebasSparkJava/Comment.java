@@ -8,17 +8,6 @@ import spark.Response;
 public class Comment {
 	//Comentarios
 	
-	//Guardo un nuevo comentario de un usuario hacia una pelicula
-	public String postComment(Request request) {
-		String result = new String("Comentario");
-		String comment=request.queryParams("comment");
-		String user_string=request.queryParams("user");
-		int user=Integer.parseInt(user_string);
-		String film=request.queryParams("film");
-		result=newComment(comment, user, film);
-		return result;
-	}
-	
 	public String newComment(String text, int user, String film) {
 		if (text.equals(null)) {
 			throw new IllegalArgumentException("Comentario invalido");
@@ -29,8 +18,15 @@ public class Comment {
 		}else {
 		//Obtengo id de la pelicula
 		//Almaceno el nuevo comentario
-			System.out.println("Guardado");
-			return "Comentario almacenado";
+			try {
+				Injector connector = new Injector("jdbc:sqlite:Database/IMDb.db");
+				connector.insertUser(user);
+				connector.insertComments(4, user, text);
+				return "Comentario almacenado";
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				return e.getMessage();
+			}
 		}
 	}
 	
@@ -40,26 +36,50 @@ public class Comment {
 		//Una funcion que me devuelva Un array de dos por dos con la info user, comen. 
 		if (film.equals(null)) {
 			throw new IllegalArgumentException("Pelicula invalida");
-		}else {
-			String coments [][]= new String[1][1];
-			String result=commentToString(coments);
-			return result;
+		}else{
+			try {
+				Injector connector = new Injector("jdbc:sqlite:Database/IMDb.db");
+				
+				String comments[][]=connector.userandcomments(film);
+				
+				String commentString=commentToString(comments);
+				
+				return commentString;
+			} catch (URISyntaxException e) {
+				return e.getMessage();
+			}catch(Exception e) {
+				return e.getMessage();
+			}
+				//DEvuelvo el error de la base de datos
 		}
+
 	}
 	
 	public String commentToString(String matrix_coment[][])
 	{
-		String text = "<h1>Comentarios que tiene la película:</h1>";
-		if (matrix_coment.length==0) {
-			throw new NullPointerException("No tiene comentarios");
-		}else {
-			for (int x = 0; x < matrix_coment.length; x++){
-				String br = " ";
-				text += br + matrix_coment[x][0] + ":" + matrix_coment[x][1];
-			}
-			text +=" ";
-			return text;
+		String text = "<u><b>Comentarios:</b></u><br>";
+		for (int x = 0; x < matrix_coment.length; x++){
+			String coments = " ";
+			text += coments + matrix_coment[x][0] + ":" + matrix_coment[x][1]+"<br>";
+		}
+		text +=" ";
+		return text;
+	}
+	
+	//Guardo un nuevo comentario de un usuario hacia una pelicula
+	public String postComment(Request request) {
+		String comment=request.queryParams("comment");
+		
+		String user_string=request.queryParams("user");
+		int user=Integer.parseInt(user_string);
+		
+		String film=request.queryParams("film");
+		try {
+			String result=newComment(comment, user, film);
+			return result;
+		}catch (IllegalArgumentException e) {
+			return e.getMessage();
 		}
 	}
-
 }
+

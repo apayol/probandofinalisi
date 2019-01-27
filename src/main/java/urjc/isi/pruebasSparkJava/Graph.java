@@ -70,6 +70,7 @@ public class Graph {
         In in = new In(filename);
         while (in.hasNextLine()) {
             String line = in.readLine();
+            if (delimiter == null) throw new IllegalArgumentException("Graph.Graph"); //Para test
             String[] names = line.split(delimiter);
             for (int i = 1; i < names.length; i++) {
                 addEdge(names[0], names[i]);
@@ -195,6 +196,17 @@ public class Graph {
     public int getter(String v) {
         validateVertex(v);
         return film.get(v);
+    }
+    
+    /**
+     * Returns the number of films/actors in that vertex
+     *
+     * @param  v the vertex
+     * @return the value of the key (vertex) v
+     * @throws IllegalArgumentException if {@code v} is not a vertex in this graph
+     */
+    public ST<String, SET<String>> STgetter() {
+        return st;
     }
 
    /**

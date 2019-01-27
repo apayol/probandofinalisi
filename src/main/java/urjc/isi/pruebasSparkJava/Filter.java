@@ -1,5 +1,7 @@
 package urjc.isi.pruebasSparkJava;
 
+import java.util.List;
+
 // Clase encargada de todo lo relacionado con el filtrado.
 
 import spark.Request;
@@ -39,13 +41,14 @@ public class Filter {
 	// Método encargado de mostrar al usuario toda la información sobre
 	// la película cuyo nombre ha introducido (HTML devuelto al hacer
 	// POST sobre /filter_name).
-	public static String showFilmByName() {
+	public static String showFilmByName(Injector inj, Request req) {
 		
 		Formulario f=new Formulario();
 		Comment c=new Comment();
     	// Para acceder al valor del parametro "film" del form:
     	// req.queryParams("film") => hay que pasarselo a la función que busque en la BD.
-    	
+    	List<String> infoFields = inj.filterByName(req.queryParams("film"));
+		
     	// Los siguientes valores están puestos a modo de prueba. Hay que
     	// sustituirlos por los valores que devuelva la función que busque en la BD.
     	String titulo = "titulo de prueba";
@@ -67,12 +70,12 @@ public class Filter {
 								"<th>Géneros</th>" +
 							"</tr>" +
 							"<tr>" +
-								"<td>" + titulo + "</td>" +
-								"<td>" + año + "</td>" +
-								"<td>" + duracion + "</td>" +
-								"<td>" + puntuacionMedia + "</td>" +
-								"<td>" + numVotos + "</td>" +
-								"<td>" + generos + "</td>" +
+								"<td>" + infoFields.get(0) + "</td>" +
+								"<td>" + infoFields.get(1) + "</td>" +
+								"<td>" + infoFields.get(2) + "</td>" +
+								"<td>" + infoFields.get(3) + "</td>" +
+								"<td>" + infoFields.get(4) + "</td>" +
+								"<td>" + infoFields.get(5) + "</td>" +
 							"</tr>" +
 						"</table>";
     	

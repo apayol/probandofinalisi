@@ -21,7 +21,7 @@ public class Injector {
 			URI dbUri = new URI(System.getenv(name));
 			String username = dbUri.getUserInfo().split(":")[0];
 			String password = dbUri.getUserInfo().split(":")[1];
-			String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
+		    String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
 			c = DriverManager.getConnection(dbUrl, username, password);
 			c.setAutoCommit(false);
 		}catch (SQLException e) {
@@ -37,14 +37,12 @@ public class Injector {
     		ResultSet rs = pstmt.executeQuery();
     		c.commit();
     		rs.next();
-            String titleid = Integer.toString(rs.getInt("titleID"));
             String title = rs.getString("title");
             String year = Integer.toString(rs.getInt("year"));
             String runtimeMinutes = Integer.toString(rs.getInt("runtimeMinutes"));
             String averageRating = Double.toString(rs.getDouble("averageRating"));
             String numVotes = Integer.toString(rs.getInt("numVotes"));
             String genres = rs.getString("genres");
-            result.add(titleid);
             result.add(title);
             result.add(year);
             result.add(runtimeMinutes);

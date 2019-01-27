@@ -22,6 +22,7 @@ public class Main {
     // Connection to the SQLite database. Used by insert and select methods.
     // Initialized in main
     private static Connection connection;
+    private static String last_added;
 	
     static int getHerokuAssignedPort() {
     	ProcessBuilder processBuilder = new ProcessBuilder();
@@ -181,7 +182,8 @@ public class Main {
     }
     
     
-    public static Connection getConnection() {
+    //getter para connection (utilizado en GraphFuncionality.namechecker(connection,name) en mi caso
+    public static Connection getConnection() { 
     	return connection;
     }
     
@@ -194,8 +196,8 @@ public class Main {
     	// connection will be reused by every query in this simplistic example
     	//El constructor para acceder a la base de datos, en el futuro se debe descomentar. 
     	//Comentar para probar en local
-//    	Injector connector = new Injector("IMDb.db");
-    	connection = DriverManager.getConnection("jdbc:sqlite:Database/IMDb.db");
+    	Injector connector = new Injector("DATABASE_URL");
+//    	connection = DriverManager.getConnection("jdbc:sqlite:Database/IMDb.db");
     	
     	Score score =new Score();
     	Comment comment =new Comment();
@@ -229,12 +231,12 @@ public class Main {
     					"<button type='submit'>Add Films</button>" +
     				"</div>" +
     			"</form>" +
-    			"<form action='/showlastadded' method='get'>" +
-					"<div class='button'>" +
-						"Últimas películas añadidas: <br/>" +
-						"<button type='submit'>Show Last Added</button>" +
-					"</div>" +
-				"</form>" +
+			"<form action='/showlastadded' method='get'>" +
+				"<div class='button'>" +
+					"Últimas películas añadidas: <br/>" +
+					"<button type='submit'>Show Last Added</button>" +
+				"</div>" +
+			"</form>" +
     			"<a href='/filter'>Búsqueda de películas</a>" +
     			"<br><br>" +
     			"<p>Grafos:</p>" +
@@ -332,24 +334,18 @@ public class Main {
     		"<form action='/add_films' method='post'>" +
     		"<label for='actor'>Actor: </label>" + 
     		"<input type='text' name='actor' id='actor'" +
-    		"pattern=[A-Za-z]{0,}>" +
+    		"pattern=[A-Za-z ]{0,}>" +
     		"<p><input type='submit' value='Enviar'></p>" +
     		"</form>"
-    		+ "<p>Implementada funcionalidad a espera de solucionar problemas con upload films debido al límite de peliculas</p>");
+    		+ "<p>Implementada funcionalidad a espera de solucionar problemas con la base de datos</p>");
         //Incluido formulario para añadir películas
         
         post("/add_films", (req, res) -> {
-        	Film film = new Film();
-        	String result = "Has añadido ->"
-        		+ "</p>pelicula: " + req.queryParams("film")
+        	last_added = "</p>pelicula: " + req.queryParams("film")
         		+ "</p>year: " + req.queryParams("year") 
         		+ "</p>Género: " + req.queryParams("genres")
         		+ "</p>Actor: " + req.queryParams("actor");
-        	Film.setTitle(req.queryParams("film"));
-        	Film.setYear(req.queryParams("year"));
-        	Film.setGenre(req.queryParams("genres"));
-        	Film.setActor(req.queryParams("actor"));
-        	
+        	String result = "Has añadido ->" + last_added;
         	insertFilm(connection, req.queryParams("film")
         			,req.queryParams("year"), req.queryParams("genres"));
         	String title_ID = selectTitle_ID(connection, "movies", req.queryParams("film"), req.queryParams("year"), req.queryParams("genres"));
@@ -358,16 +354,24 @@ public class Main {
         	//insertWorks_In(connection, title_ID, name_ID);
         	return result;	
         });
-        
-        get("/showlastadded", (req, res) ->
-        "<div style='color:#1A318C'><b>ÚLTIMAS PELÍCULAS AÑADIDAS:</b>");
-        
-        
+
+        get("/showlastadded", (req, res) -> {
+        	if (last_added == null) {
+        		return "No se han añadido películas" +
+        				"</p>Esta página mostrará más peliculas recientemente añadidas " +
+        				"cuando dispongamos de acceso a la base de datos</p>";
+        	}else {
+        		return "<div style='color:#1A318C'><b>ÚLTIMA PELÍCULA AÑADIDA:</b></p>" +  last_added +
+        				"</p>Esta página mostrará más peliculas recientemente añadidas " +
+        				"cuando dispongamos de acceso a la base de datos</p>";
+		}
+        });
+
         // Recurso /filter encargado de la funcionalidad del filtrado de películas.
         get("/filter", (req, res) -> Filter.showFilterMenu());
         
         // Recurso /filter_name encargado de mostrar la info de una película dado el nombre.
-        post("/filter_name", (req, res) -> Filter.showFilmByName());
+        post("/filter_name", (req, res) -> Filter.showFilmByName(connector, req));
         
         // Recurso /filter_year encargado de mostrar todas las películas dado un año.
         post("/filter_year", (req, res) -> Filter.showFilmByYear(req));
@@ -507,7 +511,6 @@ public class Main {
         post("/graph_filter_ranking_show", (req, res) -> {
         	Graph graph = new Graph("Database/film_actors.txt", "/");
     		String number= req.queryParams("number");
-//    		GraphFuncionality.doRanking(graph, number);
     		String result = "";
     		
     		if (number.equals("")) {

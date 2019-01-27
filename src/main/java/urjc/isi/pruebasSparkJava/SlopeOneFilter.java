@@ -31,20 +31,20 @@ public class SlopeOneFilter {
 			titleID = t;
 			prediction = p;
 		}
-		
-		public int getKey() { 
-			return titleID; 
+
+		public int getKey() {
+			return titleID;
 		}
 
-		public double getValue() { 
-			return prediction; 
+		public double getValue() {
+			return prediction;
 		}
 
 		public String toString() {
 			return "titleID: " + getKey() + ", Pred: " + getValue();
-		}		
+		}
 	}
-	
+
 	class NodeComp implements Comparator<Node> {
 		@Override
 		public int compare(Node d1, Node d2) {
@@ -57,7 +57,7 @@ public class SlopeOneFilter {
 			}
 		}
 	}
-	
+
 	public SlopeOneFilter() {
 //		data  = new HashMap<>();
 //		JDBC call
@@ -113,7 +113,7 @@ public class SlopeOneFilter {
 		}
 	}
 
-	public void buildMaps(){
+	public void buildMaps() throws RuntimeException{
 		// Crear diffMap y weightMap a partir de data.
 		diffMap = new HashMap<Integer,Map<Integer,Double>>();
 		weightMap = new HashMap<Integer,Map<Integer,Integer>>();
@@ -126,6 +126,7 @@ public class SlopeOneFilter {
 				int movie_A = movie.getKey();
 				for(Map.Entry<Integer, Double> other_movie: user_movies.entrySet()) {
 					int movie_B = other_movie.getKey();
+
 					if(movie_A == movie_B) {
 						continue;
 					}
@@ -133,6 +134,10 @@ public class SlopeOneFilter {
 					Double score_A = movie.getValue();
 					Double score_B = other_movie.getValue();
 					Double diff = score_A - score_B;
+
+					if(((score_A < 0) || (score_A > 10)) || ((score_B < 0) || (score_B > 10))){
+						throw new IllegalArgumentException();
+					}
 
 					setDiffMap(movie_A,movie_B,diff,movie_B_diff);
 					setWeightMap(movie_A,movie_B,movie_B_weight);
@@ -145,18 +150,20 @@ public class SlopeOneFilter {
 
 
 
-/*
+
 	public int sumaWeights(Map<Integer, Map<Integer, Integer>> weights) {
 
 		int suma = 0;
 
-		for(Map.Entry<Integer, Map<Integer, Integer>> entry: weights.entrySet()) {
-			//Map<Integer, Integer> ;
+		for(Map.Entry<Integer, Map<Integer, Integer>> entry: weights.values()) {
+			for(Map.Entry<Integer, Integer> weight: entry.values()) {
+				suma = suma + weight;
+			}
 		}
 		return suma;
 	}
 
-
+/*
 	public int predictOneMovie() {
 
 		this.predictions = new HashMap<Integer,Map<Integer,Double>>();
@@ -194,7 +201,7 @@ public class SlopeOneFilter {
 				}
 
 			//	total = total + (frec * (diff + );
-                       
+
 
                         total = total/n;
 
@@ -219,8 +226,8 @@ public class SlopeOneFilter {
 			}
 		}
 	}
-*/
 
+*/
 
 
 	public int getIndex(int user, double value) {
@@ -235,25 +242,25 @@ public class SlopeOneFilter {
 		}
 		return pos;
 	}
-	
+
 	public void recommend(int user, int nItems) {
 		// Mostrar nItems predicciones con mayor puntuación.
 		LinkedList<Node> predictionList = predictions.get(user);
 		predictionList.sort(new NodeComp());
-		
+
 		ListIterator<Node> itrator = predictionList.listIterator();
-		 
+
 		for (int i=0; i < nItems; i++) {
 			itrator.hasNext();
 			System.out.println(itrator.next());
 		}
 	}
-	
+
 	public static void main(String args[]){
 		SlopeOneFilter so = new SlopeOneFilter();
 
 		so.data = new HashMap<>();
-		
+
 		Integer item_A = 1;
 		Integer item_B = 11;
 		Integer item_C = 111;
@@ -275,19 +282,19 @@ public class SlopeOneFilter {
 		System.out.println("data\n" + so.data);
 		System.out.println("----");
 		so.buildMaps();
-		
+
 		System.out.println("diffMap\n" + so.diffMap);
 		System.out.println("----");
 		System.out.println("weightMap\n" + so.weightMap);
 		System.out.println("----");
-		
+
 		so.predictions = new HashMap<>();
 		so.predictions.put(1, new LinkedList<Node>());
 
 		so.predictions.get(1).add( so.new Node(1 , 8.0));
 		so.predictions.get(1).add( so.new Node(2 , 1.0));
 		so.predictions.get(1).add( so.new Node(3 , 10.0));
-		
+
 		System.out.println(so.predictions);
 		so.recommend(1, 2);
 		System.out.println(so.predictions);

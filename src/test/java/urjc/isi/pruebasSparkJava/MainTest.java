@@ -42,19 +42,30 @@ public class MainTest {
    	 	}
 	}
 
+	/*
+	//Test1: insert
+	@Test (expected = NullPointerException.class)
+	public void testInsertNull()
+	{
+		Main.insert(connection, null, null);
+	}
+	*/
+
+	//Test1: insertFilm
 	@Test (expected = NullPointerException.class)
 	public void testInsertNullMovie()
 	{
 		Main.insertFilm(connection, null, "2019", null);
 	}
 
+	//Test1: insertActor
 	@Test (expected = NullPointerException.class)
 	public void testInsertNullActor() throws SQLException
 	{
 		Main.insertActor(connection, null);
 	}
 
-	
+	//Test1: insertWorks_In
 	@Test (expected = NullPointerException.class)
   	public void testInsertNullWorks() throws SQLException
 	{

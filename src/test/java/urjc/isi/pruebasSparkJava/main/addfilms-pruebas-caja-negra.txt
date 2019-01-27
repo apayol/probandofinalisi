@@ -1,0 +1,76 @@
+-- DOCUMENTO EXPLICATIVO DE LAS PRUEBAS CAJA NEGRA NECESARIAS DE FUNCIONES PARA AÑADIR PELÍCULAS --
+
+*A todos se le pasa el parámetro Connection conn que enlaza con la base de datos: "jdbc:sqlite:Database/IMDb.db"
+
+-Main.insertFilm()
+-------------------
+Paso 1: determinar el método a testar.
+	- Método insertFilm del Main.
+
+Paso 2: determinar los parámetros a testar.
+	- String data1 : título de la película
+	- String data2 : año de la película
+	- String data3 : género de la película
+
+Paso 3: elegir caracterizaciones y su división en bloques.
+	
+
+Paso 4: aplicar criterios de cobertura.
+	
+
+Paso 5: traducir las combinaciones elegidas en valores que pasar a los tests.
+	
+
+-Main.insertActor()
+-------------------
+Paso 1: determinar el método a testar.
+	- Método insertActor del Main.
+
+Paso 2: determinar los parámetros a testar.
+	- String data1 : nombre de actor que participa
+
+Paso 3: elegir caracterizaciones y su división en bloques.
+	
+
+Paso 4: aplicar criterios de cobertura.
+
+
+Paso 5: traducir las combinaciones elegidas en valores que pasar a los tests.
+	
+
+-Main.insertWorks_In()
+----------------------
+Paso 1: determinar el método a testar.
+	- Método insertWorks_In del Main.
+
+Paso 2: determinar los parámetros a testar.
+	- String data1 : título de la película
+	- String data2 : nombre del actor que participa
+
+Paso 3: elegir caracterizaciones y su división en bloques.
+	
+
+Paso 4: aplicar criterios de cobertura.
+	
+
+Paso 5: traducir las combinaciones elegidas en valores que pasar a los tests.
+	
+
+-Main.insert()
+--------------
+Paso 1: determinar el método a testar.
+	- Método insert del Main.
+
+Paso 2: determinar los parámetros a testar.
+	- String film : título de la película
+	- String actor : actor que participa en la película
+
+Paso 3: elegir caracterizaciones y su división en bloques.
+	
+
+Paso 4: aplicar criterios de cobertura.
+	
+
+Paso 5: traducir las combinaciones elegidas en valores que pasar a los tests.
+	
+

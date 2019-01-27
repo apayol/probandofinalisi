@@ -6,7 +6,7 @@ import spark.Request;
 import spark.Response;
 
 public class Score {
-	//Puntuaciones
+	
 	
 		//Guardo la nueva puntuacion
 		public String newScore(int score, int user, String film) {
@@ -17,23 +17,36 @@ public class Score {
 			}else if (film.equals(null)) {
 				throw new IllegalArgumentException("Pelicula invalida");
 			}else {
-			// Creo la clase bbdd
-			//Obtener el id de la pelicula
-			//bbdd.filterByName(film); si nos hace falta sacar el id
-			//Llamar a la funcion para añadir. 
+				try {
+					Injector connector = new Injector("jdbc:sqlite:Database/IMDb.db");
+					connector.insertUser(user);
+					//int filmID=connector.filterByName(film)
+					//Problema, no tengo manera de sacar el idfilm
+					connector.insertRating(2, user, score);
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			return ("Puntuacion añadida");
 			}
 		}
 		
 		//Obtengo la nueva media 
-		public int getScor (String film) {
+		public int getScore(String film) {
 			if (film.equals(null)) {
 				throw new IllegalArgumentException("Pelicula invalida");
 			}else {
-			//Llamara a una funcion que me devuelva todas las puntuaciones 
-			//referentes al nombre que me pasan, de ese vector saco la medi
-			int media = 4;
-			return media;
+				try {
+					Injector connector = new Injector("jdbc:sqlite:Database/IMDb.db");
+					int media =connector.meanScores(film);
+					return media;
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+					//Lanzar error de bbdd
+					//Quitar este return esta puesto para que no de errores
+					return 0;
+				}
 			}
 		}
 		
@@ -45,23 +58,28 @@ public class Score {
 				throw new IllegalArgumentException("Pelicula invalida");
 			}else {
 			//Llamar a la función para cambiar la puntuacion de la pelicula, pedir. 
-				
+			//Parace no estar hecha
 			}
 		}
 		
 		public String postScore(Request request) throws ClassNotFoundException, URISyntaxException {
-			System.out.println("Puntuando");
-			String result = new String("Puntuacion");			
+			
+			//Saco la puntuacion a int
 			String score_string=request.queryParams("score");
 			int score=Integer.parseInt(score_string);
+			//Saco el usuario a int
 			String user_string=request.queryParams("user");
 			int user=Integer.parseInt(user_string);
+			//Saco la pelicula.
 			String film=request.queryParams("film");
-			result=newScore(score, user, film);
-			score=getScor(film);
-			changeScore(score, film);
-			return result;
+			
+			try {
+				String result=newScore(score, user, film);
+				score=getScore(film);
+				changeScore(score, film);
+				return result;
+			}catch(IllegalArgumentException e) {
+				return e.getMessage();
+			}
 		}
-		
-
 }
